@@ -47,8 +47,8 @@ final class NoteFactory extends ModelFactory
     protected function getDefaults(): array
     {
         return [
-            'note' => self::faker()->randomFloat(),
-            'observation' => self::faker()->realtext(50),
+            'note' => self::faker()->randomFloat(0,20),
+            'observation' => self::faker()->realtext(20),
             'etudiant' => EtudiantFactory::randomOrCreate(),  
             'module' => ModuleFactory::randomOrCreate(),
         ];

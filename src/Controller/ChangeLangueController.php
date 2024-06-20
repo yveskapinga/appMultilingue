@@ -2,27 +2,24 @@
 
 namespace App\Controller;
 
-
+use App\Entity\Etudiant;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-
-use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class ChangeLangueController extends AbstractController
 {
-
     private UrlGeneratorInterface $urlGenerator;
 
     public function __construct(UrlGeneratorInterface $urlGenerator)
     {
         $this->urlGenerator = $urlGenerator;
     }
-
 
     #[Route('/change_langue', name: 'change_langue')]
     public function index(): Response
@@ -32,25 +29,41 @@ class ChangeLangueController extends AbstractController
         ]);
     }
 
-
-
     #[Route('/changeLocale', name: 'changeLocale')]
     public function changeLocale(RequestStack $requestStack, Request $request, EntityManagerInterface $em)
     {
-       
         $langue = $request->request->get('langue');
         $user = $this->getUser();
-        if($user)
-        {
+        if ($user) {
             $user->setLocale($langue);
             $em->persist($user);
             $em->flush();
         }
         $requestStack->getSession()->set('_locale', $langue);
-        return new Response("ok");
-      
+
+        return new Response('ok');
     }
-    
 
+    #[Route('/add', name: 'add')]
+    public function addStudent(ManagerRegistry $managerRegistry)
+    {
+        $etudiant = new Etudiant();
+        $etudiant
+        ->setNom('kayembe')
+        ->setPrenom('yves')
+        ->setAdresse('dilungu')
+        ->setCne('10020002');
+        $doctrine = $managerRegistry->getManager();
+        $doctrine->persist($etudiant);
+        $doctrine->flush();
+    }
 
+    #[Route('/get/{id}', name: 'get')]
+    public function getStudent(Etudiant $etudiant): Response
+    {
+        dd($etudiant);
+
+        return $this->render('fileName.html.twig', [
+        ]);
+    }
 }

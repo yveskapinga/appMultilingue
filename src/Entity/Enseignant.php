@@ -8,18 +8,8 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: EnseignantRepository::class)]
-class Enseignant
+class Enseignant extends User
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
-
-    #[ORM\Column(length: 255)]
-    private ?string $nom = null;
-
-    #[ORM\Column(length: 50)]
-    private ?string $prenom = null;
 
     #[ORM\Column(length: 20)]
     private ?string $cin = null;
@@ -27,38 +17,17 @@ class Enseignant
     #[ORM\OneToMany(mappedBy: 'enseignant', targetEntity: Module::class)]
     private Collection $modules;
 
+    #[ORM\OneToMany(mappedBy: 'enseignant', targetEntity: Travail::class)]
+    private Collection $travails;
+
+    #[ORM\ManyToMany(targetEntity: Classe::class, inversedBy: 'enseignants')]
+    private Collection $classes;
+
     public function __construct()
     {
         $this->modules = new ArrayCollection();
-    }
-
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
-
-    public function getNom(): ?string
-    {
-        return $this->nom;
-    }
-
-    public function setNom(string $nom): self
-    {
-        $this->nom = $nom;
-
-        return $this;
-    }
-
-    public function getPrenom(): ?string
-    {
-        return $this->prenom;
-    }
-
-    public function setPrenom(string $prenom): self
-    {
-        $this->prenom = $prenom;
-
-        return $this;
+        $this->travails = new ArrayCollection();
+        $this->classes = new ArrayCollection();
     }
 
     public function getCin(): ?string
@@ -99,6 +68,73 @@ class Enseignant
                 $module->setEnseignant(null);
             }
         }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Travail>
+     */
+    public function getTravails(): Collection
+    {
+        return $this->travails;
+    }
+
+    public function addTravail(Travail $travail): static
+    {
+        if (!$this->travails->contains($travail)) {
+            $this->travails->add($travail);
+            $travail->setEnseignant($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTravail(Travail $travail): static
+    {
+        if ($this->travails->removeElement($travail)) {
+            // set the owning side to null (unless already changed)
+            if ($travail->getEnseignant() === $this) {
+                $travail->setEnseignant(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function canViewStudent(Etudiant $etudiant): bool
+    {
+        $classEtudiant = $etudiant->getClasse();
+
+        foreach ($this->getClasses() as $classe) {
+            if ($classe === $classEtudiant) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @return Collection<int, Classe>
+     */
+    public function getClasses(): Collection
+    {
+        return $this->classes;
+    }
+
+    public function addClass(Classe $class): static
+    {
+        if (!$this->classes->contains($class)) {
+            $this->classes->add($class);
+        }
+
+        return $this;
+    }
+
+    public function removeClass(Classe $class): static
+    {
+        $this->classes->removeElement($class);
 
         return $this;
     }

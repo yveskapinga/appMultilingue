@@ -32,9 +32,13 @@ class Module
     #[ORM\OneToMany(mappedBy: 'module', targetEntity: Note::class)]
     private Collection $notes;
 
+    #[ORM\OneToMany(mappedBy: 'module', targetEntity: Travail::class)]
+    private Collection $travails;
+
     public function __construct()
     {
         $this->notes = new ArrayCollection();
+        $this->travails = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -114,6 +118,36 @@ class Module
             // set the owning side to null (unless already changed)
             if ($note->getModule() === $this) {
                 $note->setModule(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Travail>
+     */
+    public function getTravails(): Collection
+    {
+        return $this->travails;
+    }
+
+    public function addTravail(Travail $travail): static
+    {
+        if (!$this->travails->contains($travail)) {
+            $this->travails->add($travail);
+            $travail->setModule($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTravail(Travail $travail): static
+    {
+        if ($this->travails->removeElement($travail)) {
+            // set the owning side to null (unless already changed)
+            if ($travail->getModule() === $this) {
+                $travail->setModule(null);
             }
         }
 

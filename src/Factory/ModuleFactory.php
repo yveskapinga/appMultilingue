@@ -47,7 +47,7 @@ final class ModuleFactory extends ModelFactory
     protected function getDefaults(): array
     {
         return [
-            'nom' => self::faker()->realtext(30),
+            'nom' => self::faker()->realtext(10),
             'enseignant' => EnseignantFactory::randomOrCreate(), // TODO add App\Entity\enseignant type manually
             'filiere' => FiliereFactory::randomOrCreate(),   // TODO add App\Entity\filiere type manually
             'semestre' => SemestreFactory::randomOrCreate(),

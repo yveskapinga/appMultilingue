@@ -21,9 +21,13 @@ class Filiere
     #[ORM\OneToMany(mappedBy: 'filiere', targetEntity: Module::class)]
     private Collection $modules;
 
+    #[ORM\OneToMany(mappedBy: 'filiere', targetEntity: Classe::class)]
+    private Collection $classes;
+
     public function __construct()
     {
         $this->modules = new ArrayCollection();
+        $this->classes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -67,6 +71,36 @@ class Filiere
             // set the owning side to null (unless already changed)
             if ($module->getFiliere() === $this) {
                 $module->setFiliere(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Classe>
+     */
+    public function getClasses(): Collection
+    {
+        return $this->classes;
+    }
+
+    public function addClass(Classe $class): static
+    {
+        if (!$this->classes->contains($class)) {
+            $this->classes->add($class);
+            $class->setFiliere($this);
+        }
+
+        return $this;
+    }
+
+    public function removeClass(Classe $class): static
+    {
+        if ($this->classes->removeElement($class)) {
+            // set the owning side to null (unless already changed)
+            if ($class->getFiliere() === $this) {
+                $class->setFiliere(null);
             }
         }
 
